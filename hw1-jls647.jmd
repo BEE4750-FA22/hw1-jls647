@@ -35,16 +35,74 @@ names = ["Plant", "Land Treatment", "Chem Treatment", "Pristine Brook"]
 shapes=[:hexagon, :rect, :rect, :hexagon]
 xpos = [0, -1, -0.25, 1]
 ypos = [1, 0, 0, -1]
+edgelabels=Array{String}(undef,4,4)
+for i=1:4
+for j=1:4
+edgelabels[i,j]=string("edgelabel")
+end
+end
 
-graphplot(A, names=names, markersize=0.15, markershapes=shapes, markercolor=:white, x=xpos, y=ypos)
+graphplot(A, names=names, markersize=0.15, edgelabel=edgelabels, smarkershapes=shapes, markercolor=:white, x=xpos, y=ypos)
 ```
 
 ## Problem 1.2
+The plant orignally starts off discharging 100 kg/day, so the rate of mass discharge starts off with this value
+``` math
+\begin{alignat*}{2}
+& & d(X_1,X_2)=100-...\\
+\end{alignat*}
+```
 
+next you can subtract the amounts ``X_1`` and ``X_2`` since the orginal concentration is ``1\frac{kg}{day} `` 
+```math
+\begin{alignat*}{2}
+& & d(X_1,X_2)=100-X_1-X_2...\\
+\end{alignat*}
+```
+then you have to take into account the efficiency of the treatments and add back mass
+```math
+\begin{alignat*}{2}
+& & d(X_1,X_2)=100-X_1-X_2+.2X_1+X_2(.005X_2)\\
+\end{alignat*}
+```
+This rearranges to
+```math
+\begin{alignat*}{2}
+& & d(X_1,X_2)=-.8X_1+.005{X_2}^2-X_2+100 \\
+\end{alignat*}
+```
+The cost is equal to the sum of both treatments
+```math
+\begin{alignat*}{2}
+& & C(X_1,X_2)=\frac{{X_1}^2}{20}+1.5X_2 \\
+\end{alignat*}
+```
 ## Problem 1.3
+```julia
+function ConcCost(X1,X2)
+d=(-.8*X1)+(.005*X2^2)-(X2)+(100)
+C=X1^2/20+1.5*X2
+return d,C
+end
+
+```
 
 ## Problem 1.4
+```julia
 
+using Plots, Distributions
+
+d=zeros(50,50)
+C=zeros(50,50)
+for i=1:50
+for j=1:50
+a,b = ConcCost(i,j)
+d[i,j]=a
+C[i,j]=b
+end
+end
+scatter(d,C)
+```
 ## Problem 1.5
 
 ## Problem 1.6
