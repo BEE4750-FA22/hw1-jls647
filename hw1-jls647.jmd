@@ -22,59 +22,63 @@ Pkg.instantiate()
 # Problem 1
 
 ## Problem 1.1
-
 ```julia
 using GraphRecipes, Plots
 
 A = [0 1 1 1;
 		 0 0 0 1;
 		 0 0 0 1;
-   	 	 0 0 0 0]
+   	 	 0 0 0 0];
 	
-names = ["Plant", "Land Treatment", "Chem Treatment", "Pristine Brook"]
-shapes=[:hexagon, :rect, :rect, :hexagon]
-xpos = [0, -1, -0.25, 1]
-ypos = [1, 0, 0, -1]
-edgelabels=Array{String}(undef,4,4)
+names = ["Plant", "Land Treatment", "Chem Treatment", "Pristine Brook"];
+shapes=[:hexagon, :rect, :rect, :hexagon];
+xpos = [0, -2, 2, 0];
+ypos = [1, 0, 0, -1];
+edgelabels=Array{String}(undef,4,4);
 for i=1:4
 for j=1:4
-edgelabels[i,j]=string("edgelabel")
+edgelabels[i,j]=string("edgelabel");
 end
 end
-
+edgelabels[1,2]="X1*1kg/m^3";
+edgelabels[1,3]="X2*1kg/m^3";
+edgelabels[1,4]="100-(X1*1kg/m^3)-(X2*1kg/m^3)";
+edgelabels[2,4]=".2*(X1*1kg/m^3)";
+edgelabels[3,4]=".005*X2*1kg/m^3";
 graphplot(A, names=names, markersize=0.15, edgelabel=edgelabels, smarkershapes=shapes, markercolor=:white, x=xpos, y=ypos)
 ```
+Model of mass [kg/day] moving between each location. X1 and X2 in m^3/day
 
 ## Problem 1.2
 The plant orignally starts off discharging 100 kg/day, so the rate of mass discharge starts off with this value
 ``` math
 \begin{alignat*}{2}
-& & d(X_1,X_2)=100-...\\
+& & d(X_1,X_2)=100-...  [\frac{kg}{day}]\\
 \end{alignat*}
 ```
 
-next you can subtract the amounts ``X_1`` and ``X_2`` since the orginal concentration is ``1\frac{kg}{day} `` 
+next you can subtract the amounts ``X_1`` and ``X_2`` since the orginal concentration is ``1\frac{kg}{m^3} `` 
 ```math
 \begin{alignat*}{2}
-& & d(X_1,X_2)=100-X_1-X_2...\\
+& & d(X_1,X_2)=100-X_1*1\frac{kg}{m^3}-X_2*1\frac{kg}{m^3}...  [\frac{kg}{day}]\\
 \end{alignat*}
 ```
 then you have to take into account the efficiency of the treatments and add back mass
 ```math
 \begin{alignat*}{2}
-& & d(X_1,X_2)=100-X_1-X_2+.2X_1+X_2(.005X_2)\\
+& & d(X_1,X_2)=100-X_1-X_2+.2X_1+X_2(.005X_2)   [\frac{kg}{day}]\\
 \end{alignat*}
 ```
 This rearranges to
 ```math
 \begin{alignat*}{2}
-& & d(X_1,X_2)=-.8X_1+.005{X_2}^2-X_2+100 \\
+& & d(X_1,X_2)=-.8X_1+.005{X_2}^2-X_2+100   [\frac{kg}{day}]\\
 \end{alignat*}
 ```
 The cost is equal to the sum of both treatments
 ```math
 \begin{alignat*}{2}
-& & C(X_1,X_2)=\frac{{X_1}^2}{20}+1.5X_2 \\
+& & C(X_1,X_2)=\frac{{X_1}^2}{20}+1.5X_2   [USD]\\
 \end{alignat*}
 ```
 ## Problem 1.3
@@ -92,32 +96,32 @@ end
 
 using Plots, Distributions
 
-d=zeros(100,100)
-C=zeros(100,100)
-a,b = ConcCost(0,0)
+d=zeros(100,100);
+C=zeros(100,100);
+a,b = ConcCost(0,0);
 for i=1:100
 for j=1:100
-d[i,j]=a
-C[i,j]=b
+d[i,j]=a;
+C[i,j]=b;
 end
 end
 
 for i=1:100
 for j=1:101-i
-a,b = ConcCost(i-1,j)
-d[i,j]=a
-C[i,j]=b
+a,b = ConcCost(i-1,j);
+d[i,j]=a;
+C[i,j]=b;
 end
 end
-d
-scatter(C, d, xguide="Cost (USD)",yguide="Effluent YUK Concentration (kg/day)", legend=false, markercolor=:blue);
+
+scatter(C, d, xguide="Cost (USD)",yguide="Daily Effluent YUK Mass Discharge (kg/day)", legend=false, markercolor=:blue);
 hline!([20])
 
 ```
 ## Problem 1.5
-Using the plot from 1.4, different treatment plans can be made by envisioning the priorities of differet groups of interest. The factory owners might use the cheapest treatment plan that is under 20 kg/day. They could look at the plot and identify the leftmost point that is under the horizontal line at 20 kg/day and find the corresponding X1 and X2 combination. If it were up to the public or regulatory agencies, they might opt for a plan which costs more but will be safer. I iterated through all integer values of X1 and X2 that add up to 100 in order to get these points. This means that the cheapest point in the plot that meets the standard might not be the optimal minimizing cost plan.
+Using the plot from 1.4, different treatment plans can be made by envisioning the priorities of differet groups of interest. The factory owners might use the cheapest treatment plan that is under 20 kg/day. They could look at the plot and identify the leftmost point that is under the horizontal line at 20 kg/day and find the corresponding X1 and X2 combination. If it were up to the public or regulatory agencies, they might opt for a plan which costs more but will be safer. I iterated through all integer values of X1 and X2 that add up to 100 in order to get these points. This means that the cheapest point in the plot that meets the standard might not be the optimal minimizing cost plan. If I had included decimal values then there may be a cheaper option that still meets the standard that I would have chose.
 ## Problem 1.6
-
+One thing that can be looked further into is what the actual optimal treatment plan is that minimizes cost. As mentioned earlier, the treatment plans I plotted have X1 and X2 take integer values only. Knowing this assumption, the results cannot be interpreted as the true optimal treatment plan that minimizes cost, as the actual optimal treatment plan might not have whole numbers. This optimal treatment plan could be found by minimizing cost with effluent mass discharge as a constraint.
 ## Problem 1.7
 
 # References
