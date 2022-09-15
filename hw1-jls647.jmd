@@ -34,12 +34,8 @@ names = ["Plant", "Land Treatment", "Chem Treatment", "Pristine Brook"];
 shapes=[:hexagon, :rect, :rect, :hexagon];
 xpos = [0, -2, 2, 0];
 ypos = [1, 0, 0, -1];
-edgelabels=Array{String}(undef,4,4);
-for i=1:4
-for j=1:4
-edgelabels[i,j]=string("edgelabel");
-end
-end
+edgelabels=Array{String}(undef,4,4); #initialize array of type string to make edge labels
+
 edgelabels[1,2]="X1*1kg/m^3";
 edgelabels[1,3]="X2*1kg/m^3";
 edgelabels[1,4]="100-(X1*1kg/m^3)-(X2*1kg/m^3)";
@@ -83,7 +79,7 @@ The cost is equal to the sum of both treatments
 ```
 ## Problem 1.3
 ```julia
-function ConcCost(X1,X2)
+function DisCost(X1,X2) #a function which takes values for X1 and X2 in m^3/day and gives the corresponding mass discharge in kg/day and the cost of the treatment plan
 d=(-.8*X1)+(.005*X2^2)-(X2)+(100)
 C=X1^2/20+1.5*X2
 return d,C
@@ -96,19 +92,19 @@ end
 
 using Plots, Distributions
 
-d=zeros(100,100);
-C=zeros(100,100);
-a,b = ConcCost(0,0);
-for i=1:100
+d=zeros(100,100); #initialize array of mass discharges
+C=zeros(100,100); #initialize array of costs
+a,b = DisCost(0,0);
+for i=1:100 #assign values from zero treatment to all to replace zeros
 for j=1:100
 d[i,j]=a;
 C[i,j]=b;
 end
 end
 
-for i=1:100
+for i=1:100 #iterates through values that add up to 100 m^3/day or less
 for j=1:101-i
-a,b = ConcCost(i-1,j);
+a,b = DisCost(i-1,j);
 d[i,j]=a;
 C[i,j]=b;
 end
